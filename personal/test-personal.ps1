@@ -58,6 +58,9 @@ try { Assert ((Test-TcpPort ([Net.IPAddress]::Loopback) $port) -eq 'Reachable') 
 finally { $listener.Stop() }
 Assert ((Test-TcpPort ([Net.IPAddress]::Loopback) $port) -eq 'RefusedHere') 'Refused port'
 $policy = Get-Content "$PSScriptRoot\policy.example.hujson" -Raw | ConvertFrom-Json
-Assert ($policy.acls.Count -eq 2 -and $policy.tests.Count -eq 3) 'Policy structure'
-Assert (($policy.acls | Where-Object { $_.proto -ne 'tcp' -or $_.action -ne 'accept' }).Count -eq 0) 'Policy transport'
-'PASS: status scenarios, invalid input, real loopback sockets, policy structure'
+Assert (-not $policy.acls -and $policy.grants.Count -eq 2 -and $policy.tests.Count -eq 3) 'Grants structure'
+Assert (-not $policy.tagOwners.'tag:admin-pc') 'Windows must keep user identity'
+Assert ($policy.grants[0].src[0] -eq 'admin@example.com' -and $policy.grants[0].dst[0] -eq 'tag:server' -and $policy.grants[0].ip[0] -eq 'tcp:22') 'User SSH grant'
+Assert ($policy.grants[1].src[0] -eq 'tag:monitor' -and $policy.grants[1].dst[0] -eq 'tag:server' -and $policy.grants[1].ip[0] -eq 'tcp:9100') 'Monitor grant'
+Assert ($policy.tests[0].src -eq 'admin@example.com') 'User policy test'
+'PASS: status scenarios, invalid input, real loopback sockets, Grants and user identity'

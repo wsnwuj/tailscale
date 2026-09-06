@@ -1,15 +1,14 @@
 {
   "tagOwners": {
-    "tag:admin-pc": ["autogroup:admin"],
     "tag:monitor": ["autogroup:admin"],
     "tag:server": ["autogroup:admin"]
   },
-  "acls": [
-    {"action": "accept", "src": ["tag:admin-pc"], "proto": "tcp", "dst": ["tag:server:22"]},
-    {"action": "accept", "src": ["tag:monitor"], "proto": "tcp", "dst": ["tag:server:9100"]}
+  "grants": [
+    {"src": ["admin@example.com"], "dst": ["tag:server"], "ip": ["tcp:22"]},
+    {"src": ["tag:monitor"], "dst": ["tag:server"], "ip": ["tcp:9100"]}
   ],
   "tests": [
-    {"src": "tag:admin-pc", "accept": ["tag:server:22"], "deny": ["tag:server:9100"]},
+    {"src": "admin@example.com", "accept": ["tag:server:22"], "deny": ["tag:server:9100"]},
     {"src": "tag:monitor", "accept": ["tag:server:9100"], "deny": ["tag:server:22"]},
     {"src": "tag:server", "deny": ["tag:server:22", "tag:server:9100"]}
   ]

@@ -41,9 +41,11 @@ PublicIP 的 Reachable 需要关注，但本机 TUN、VPN、出口节点、分�
 
 ## 最小权限模板
 
-`policy.example.hujson` 仅允许管理电脑 → server TCP 22、monitor → server TCP 9100；其余未授权流量默认拒绝。适用于普通 OpenSSH + WindTerm，不启用 Tailscale SSH。
+`policy.example.hujson` 使用 Grants，仅允许指定用户的未打标签设备 → server TCP 22、monitor → server TCP 9100；其余未授权流量默认拒绝。适用于普通 OpenSSH + WindTerm，不启用 Tailscale SSH。
 
-模板不自动发布。先备份现有 Policy，在官方编辑器中按实际设备分配标签并运行内置 tests，再人工决定应用。规则是累加的：保留旧的全放行规则会破坏隔离；直接覆盖又可能中断现有访问。管理电脑与 monitor 标签应分开，E2 如也要接受管理连接，可同时标记 monitor 和 server；其他服务器不要获得管理标签。给个人设备打标签会改变其用户身份语义，应先核对现有权限。
+Windows 使用个人账号登录，保留用户身份，不分配 `tag:admin-pc` 或其他标签。在官方编辑器内，将 Grants 和 tests 两处 `admin@example.com` 替换为控制台显示的真实用户标识（示例不是有效授权配置），不要把真实身份提交到公共仓库。这项授权也适用于该用户的其他未打标签设备，并非只限定一台 Windows。
+
+模板不自动发布。先备份现有 Policy，在官方编辑器中按实际设备分配标签并运行内置 tests，再人工决定应用。ACL 与 Grants 权限会累加：保留旧的全放行规则会破坏隔离；直接覆盖又可能中断现有访问。E2 如也要接受管理连接，可同时标记 monitor 和 server；其他服务器不要获得 monitor 标签。
 
 按此模板，Windows → 9100 预期不通；监控通路必须从 E2 另行验证。本版不迁移 Prometheus、不修改 HY2/GOST/nftables，不包含网页仪表盘。只有尾网策略无法控制公网访问。
 
